@@ -1,4 +1,4 @@
-# AntiManaba
+# AntiManabaTask
 
 rewrite of [manabaNotifications](https://github.com/ruis2615/manabaNotifications) ([its article](https://zenn.dev/seiwell/articles/a39fab80cdb146))
 
@@ -16,11 +16,13 @@ GAS to add Manaba task to Google Calendar
 ## Usage
 
 1. run in shell
+
 ```shell
 bun i
 bun x clasp login
 bun run push
 ```
+
 2. add trigger in [GAS Web](https://script.google.com/home/all)
 
 ## ignore rule
@@ -37,5 +39,6 @@ bun run push
 ```
 
 ## future plan
+
 - discord webhook
 - line notification bot
