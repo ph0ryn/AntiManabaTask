@@ -8,6 +8,9 @@ import googleappsscript from "eslint-plugin-googleappsscript";
 export default tseslint.config(
     eslint.configs.recommended,
     {
+        ignores: ["src/*.js"],
+    },
+    {
         files: ["src/*.ts"],
         extends: [
             ...tseslint.configs.recommendedTypeChecked,
