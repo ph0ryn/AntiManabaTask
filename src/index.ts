@@ -6,6 +6,13 @@ interface TaskInfo {
   url: string | null;
 }
 
+interface IgnoreConfig {
+  ignore: {
+    course: string[];
+    task: string[];
+  };
+}
+
 function parseGmailBodyText(text: string): TaskInfo {
   return {
     courseName: text.match(/\[コース名\] : (.*)/)?.[1]?.trim() ?? null,
@@ -64,6 +71,26 @@ function addCalendar(
     Logger.log(`カレンダーへの追加に失敗しました: ${String(e)}`);
   }
 }
+
+function shouldIgnore(taskInfo: TaskInfo, config: IgnoreConfig): boolean {
+  if (!config || !config.ignore) return false;
+
+  const { course, task } = config.ignore;
+
+  if (taskInfo.courseName && course) {
+    if (course.some((keyword) => taskInfo.courseName!.includes(keyword))) {
+      return true;
+    }
+  }
+
+  if (taskInfo.taskName && task) {
+    if (task.some((keyword) => taskInfo.taskName!.includes(keyword))) {
+      return true;
+    }
+  }
+
+  return false;
+}
  
 function main(): void {
   Logger.log("Starting script...");
@@ -101,29 +128,44 @@ function main(): void {
 
       // 受信日が半年前より新しいかチェック
       if (receivedDate >= halfYearAgo) {
-        const body = message.getPlainBody();
-        const taskInfo = parseGmailBodyText(body);
-  
-        const startDateTime = getStartDateTime(taskInfo, receivedDate);
-        const endDateTime = getEndDateTime(taskInfo, startDateTime);
-  
-        if (taskInfo.courseName && taskInfo.taskName && startDateTime && endDateTime) {
-          addCalendar(
-            taskInfo.courseName,
-            taskInfo.taskName,
-            startDateTime,
-            endDateTime,
-            taskInfo.url
-          );
-
-          thread.addLabel(newTasksLabel);
-          processedCount++;
-        } else {
-          Logger.log("カレンダーに追加するための必須情報が不足しています。");
-          Logger.log(taskInfo);
-          Logger.log("受信日:", receivedDate);
-        }
+        return;
       }
+
+      const body = message.getPlainBody();
+      const taskInfo = parseGmailBodyText(body);
+  
+      const startDateTime = getStartDateTime(taskInfo, receivedDate);
+      const endDateTime = getEndDateTime(taskInfo, startDateTime);
+
+      // @ts-expect-error: IGNORE_RULE is injected by build
+      const ignoreConfig = IGNORE_RULE as IgnoreConfig;
+
+      if (shouldIgnore(taskInfo, ignoreConfig)) {
+        Logger.log(
+          `Ignored task: ${taskInfo.courseName} - ${taskInfo.taskName}`
+        );
+
+        continue;
+      }
+
+      if (!taskInfo.courseName || !taskInfo.taskName || !startDateTime || !endDateTime) {
+        Logger.log("カレンダーに追加するための必須情報が不足しています。");
+        Logger.log(taskInfo);
+        Logger.log("受信日:", receivedDate);
+
+        return;
+      }
+
+      addCalendar(
+        taskInfo.courseName,
+        taskInfo.taskName,
+        startDateTime,
+        endDateTime,
+        taskInfo.url
+      );
+
+      thread.addLabel(newTasksLabel);
+      processedCount++;
     }
   }
 
