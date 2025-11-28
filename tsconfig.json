@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     // Environment setup & latest features
-    "lib": [
-      "ES2019"
+    "types": [
+      "google-apps-script"
     ],
     "target": "ES2019",
     "module": "Preserve",

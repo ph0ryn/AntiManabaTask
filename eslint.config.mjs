@@ -1,28 +1,31 @@
-import { defineConfig } from "eslint/config";
+
+import eslint from '@eslint/js';
 import tseslint from "typescript-eslint";
 import importX from "eslint-plugin-import-x";
+import stylistic from "@stylistic/eslint-plugin";
 import googleappsscript from "eslint-plugin-googleappsscript";
 
-export default defineConfig([
+export default tseslint.config(
+    eslint.configs.recommended,
     {
-        files: [
-            "src/*.ts"
+        files: ["src/*.ts"],
+        extends: [
+            ...tseslint.configs.recommendedTypeChecked,
         ],
         languageOptions: {
-            parser: tseslint.parser,
             parserOptions: {
                 projectService: true,
                 tsconfigRootDir: import.meta.dirname,
                 extraFileExtensions: [".gs"],
             },
             globals: {
-                "googleappsscript/googleappsscript": true
+                ...googleappsscript.environments.googleappsscript.globals,
             }
         },
         plugins: {
             "import-x": importX,
-            "@typescript-eslint": tseslint.plugin,
             "googleappsscript": googleappsscript,
+            "@stylistic": stylistic,
         },
         rules: {
             "semi": ["error", "always"],
@@ -34,6 +37,35 @@ export default defineConfig([
             "no-unreachable": "error",
 
             "quotes": ["error", "double"],
+            
+            "no-multiple-empty-lines": [
+                "error",
+                {
+                    "max": 1,
+                    "maxEOF": 0
+                }
+            ],
+
+            "@stylistic/indent": [ "error", 2 ],
+
+            "@stylistic/padding-line-between-statements": [
+                "error",
+                {
+                    "blankLine": "always",
+                    "prev": "*",
+                    "next": ["return", "multiline-expression", "block-like", "try", "throw"]
+                },
+                {
+                    "blankLine": "always",
+                    "prev": ["multiline-expression", "block-like", "const", "let"],
+                    "next": "*"
+                },
+                {
+                    "blankLine": "any",
+                    "prev": ["const", "let"],
+                    "next": ["const", "let"]
+                }
+            ],
 
             "@typescript-eslint/naming-convention": [
                 "error",
@@ -51,17 +83,20 @@ export default defineConfig([
                 }
             ],
 
-            "import-x/order": ["error", {
-                "alphabetize": { "order": "asc" },
-                "groups": [
-                    "builtin",
-                    "external",
-                    "internal",
-                    ["parent", "sibling", "index"],
-                    "type"
-                ],
-                "newlines-between": "never"
-            }]
+            "import-x/order": [
+                "error",
+                {
+                    "alphabetize": { "order": "asc" },
+                    "groups": [
+                        "builtin",
+                        "external",
+                        "internal",
+                        ["parent", "sibling", "index"],
+                        "type"
+                    ],
+                    "newlines-between": "never"
+                }
+            ],
         },
-    },
-]);
+    }
+);
