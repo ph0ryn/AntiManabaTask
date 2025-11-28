@@ -1,6 +1,6 @@
 # AntiManaba
 
-rewrite of [manabaNotifications](https://github.com/ruis2615/manabaNotifications)
+rewrite of [manabaNotifications](https://github.com/ruis2615/manabaNotifications) ([its article](https://zenn.dev/seiwell/articles/a39fab80cdb146))
 
 GAS to add Manaba task to Google Calendar  
 **YOU DON'T HAVE TO WORRY ABOUT MANABA EVERY DAY ANYMORE**
