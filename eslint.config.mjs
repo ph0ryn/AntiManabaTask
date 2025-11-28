@@ -6,10 +6,14 @@ import stylistic from "@stylistic/eslint-plugin";
 import googleappsscript from "eslint-plugin-googleappsscript";
 
 export default tseslint.config(
-    eslint.configs.recommended,
     {
-        ignores: ["src/*.js"],
+        ignores: [
+            "src/*.js",
+            "build.mjs",
+            "dist/**"
+        ],
     },
+    eslint.configs.recommended,
     {
         files: ["src/*.ts"],
         extends: [

@@ -7,7 +7,7 @@
     "lint": "bun x eslint",
     "check": "bun x tsc src/*.ts --noEmit --skipLibCheck",
     "format": "bun x eslint --fix",
-    "build": "bun x tsc src/*.ts --skipLibCheck",
+    "build": "bun run build.ts",
     "push": "bun run build && bun x clasp push"
   },
   "devDependencies": {

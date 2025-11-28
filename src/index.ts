@@ -16,6 +16,31 @@ function parseGmailBodyText(text: string): TaskInfo {
   };
 }
 
+function getStartDateTime(taskInfo: TaskInfo, receivedDate: Date): Date {
+  if (taskInfo.taskStartDateTime) {
+    return new Date(taskInfo.taskStartDateTime);
+  }
+
+  const date = new Date(receivedDate.getTime());
+
+  date.setHours(0, 0, 0, 0);
+
+  return date;
+}
+
+function getEndDateTime(taskInfo: TaskInfo, startDateTime: Date): Date {
+  if (taskInfo.taskEndDateTime) {
+    return new Date(taskInfo.taskEndDateTime);
+  }
+
+  const date = new Date(startDateTime);
+
+  date.setDate(date.getDate() + 1);
+  date.setHours(0, 0, 0, 0);
+
+  return date;
+}
+
 function addCalendar(
   courseName: string,
   taskName: string,
@@ -39,13 +64,16 @@ function addCalendar(
     Logger.log(`カレンダーへの追加に失敗しました: ${String(e)}`);
   }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const main = (): void => {
+ 
+function main(): void {
   Logger.log("Starting script...");
 
-  const subjectQuery = "小テスト公開のお知らせ";
-  const senderQuery = "from:do-not-reply@manaba.jp";
+  const query = [
+    "小テスト OR レポート",
+    "公開のお知らせ",
+    "from:do-not-reply@manaba.jp"
+  ];
+
   const labelName = "新着課題";
     
   const halfYearAgo = new Date();
@@ -53,7 +81,7 @@ const main = (): void => {
   halfYearAgo.setMonth(halfYearAgo.getMonth() - 6);
   halfYearAgo.setHours(0, 0, 0, 0); // 半年前の午前0時
   
-  const searchQuery = `${subjectQuery} ${senderQuery} -label:${labelName} after:${halfYearAgo.toISOString().slice(0, 10)}`;
+  const searchQuery = `${query.join(" ")} -label:${labelName} after:${halfYearAgo.toISOString().slice(0, 10)}`;
 
   Logger.log(searchQuery);
 
@@ -76,33 +104,8 @@ const main = (): void => {
         const body = message.getPlainBody();
         const taskInfo = parseGmailBodyText(body);
   
-        const getStartDateTime = (): Date => {
-          if (taskInfo.taskStartDateTime) {
-            return new Date(taskInfo.taskStartDateTime);
-          }
-
-          const date = new Date(receivedDate.getTime());
-
-          date.setHours(0, 0, 0, 0);
-
-          return date;
-        };
-  
-        const getEndDateTime = (start: Date): Date => {
-          if (taskInfo.taskEndDateTime) {
-            return new Date(taskInfo.taskEndDateTime);
-          }
-
-          const date = new Date(start);
-
-          date.setDate(date.getDate() + 1);
-          date.setHours(0, 0, 0, 0);
-
-          return date;
-        };
-  
-        const startDateTime = getStartDateTime();
-        const endDateTime = getEndDateTime(startDateTime);
+        const startDateTime = getStartDateTime(taskInfo, receivedDate);
+        const endDateTime = getEndDateTime(taskInfo, startDateTime);
   
         if (taskInfo.courseName && taskInfo.taskName && startDateTime && endDateTime) {
           addCalendar(
@@ -125,4 +128,7 @@ const main = (): void => {
   }
 
   Logger.log(`${processedCount} 件の課題をカレンダーに追加しました。`);
-};
+}
+
+// Make main available globally for Google Apps Script
+globalThis.main = main;
