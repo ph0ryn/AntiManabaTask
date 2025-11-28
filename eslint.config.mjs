@@ -1,7 +1,6 @@
 
 import eslint from '@eslint/js';
 import tseslint from "typescript-eslint";
-import importX from "eslint-plugin-import-x";
 import stylistic from "@stylistic/eslint-plugin";
 import googleappsscript from "eslint-plugin-googleappsscript";
 
@@ -29,7 +28,6 @@ export default tseslint.config(
             }
         },
         plugins: {
-            "import-x": importX,
             "@stylistic": stylistic,
         },
         rules: {
@@ -85,21 +83,6 @@ export default tseslint.config(
                 {
                     "selector": ["variable", "parameter", "class", "property"],
                     "format": ["strictCamelCase"]
-                }
-            ],
-
-            "import-x/order": [
-                "error",
-                {
-                    "alphabetize": { "order": "asc" },
-                    "groups": [
-                        "builtin",
-                        "external",
-                        "internal",
-                        ["parent", "sibling", "index"],
-                        "type"
-                    ],
-                    "newlines-between": "never"
                 }
             ],
         },
