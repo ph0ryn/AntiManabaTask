@@ -15,8 +15,7 @@ export default tseslint.config(
         languageOptions: {
             parserOptions: {
                 projectService: true,
-                tsconfigRootDir: import.meta.dirname,
-                extraFileExtensions: [".gs"],
+                tsconfigRootDir: import.meta.dirname
             },
             globals: {
                 ...googleappsscript.environments.googleappsscript.globals,
@@ -24,7 +23,6 @@ export default tseslint.config(
         },
         plugins: {
             "import-x": importX,
-            "googleappsscript": googleappsscript,
             "@stylistic": stylistic,
         },
         rules: {
