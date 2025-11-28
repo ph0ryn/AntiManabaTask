@@ -42,7 +42,9 @@ function addCalendar(
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const main = (): void => {
-  const subjectQuery = "レポート公開のお知らせ";
+  Logger.log("Starting script...");
+
+  const subjectQuery = "小テスト公開のお知らせ";
   const senderQuery = "from:do-not-reply@manaba.jp";
   const labelName = "新着課題";
     
@@ -52,11 +54,14 @@ const main = (): void => {
   halfYearAgo.setHours(0, 0, 0, 0); // 半年前の午前0時
   
   const searchQuery = `${subjectQuery} ${senderQuery} -label:${labelName} after:${halfYearAgo.toISOString().slice(0, 10)}`;
+
+  Logger.log(searchQuery);
+
   const threads = GmailApp.search(searchQuery);
   const newTasksLabel = GmailApp.getUserLabelByName(labelName) || GmailApp.createLabel(labelName);
 
-  console.log(`Found ${threads.length} threads.`);
-  console.log(`Label: ${newTasksLabel.getName()}`);
+  Logger.log(`Found ${threads.length} threads.`);
+  Logger.log(`Label: ${newTasksLabel.getName()}`);
 
   let processedCount = 0;
   
