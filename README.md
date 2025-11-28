@@ -15,11 +15,13 @@ GAS to add Manaba task to Google Calendar
 
 ## Usage
 
+1. run in shell
 ```shell
 bun i
 bun x clasp login
 bun run push
 ```
+2. add trigger in [GAS Web](https://script.google.com/home/all)
 
 ## ignore rule
 
@@ -33,3 +35,7 @@ bun run push
     }
 }
 ```
+
+## future plan
+- discord webhook
+- line notification bot
