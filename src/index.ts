@@ -6,7 +6,8 @@ interface TaskInfo {
   url: string | null;
 }
 
-interface IgnoreConfig {
+interface EnvConfig {
+  calendarId: string;
   ignore: {
     course: string[];
     task: string[];
@@ -61,7 +62,9 @@ function addCalendar(
     return;
   }
 
-  const calendar = CalendarApp.getDefaultCalendar();
+  // @ts-expect-error: ENV_CONFIG is injected by build
+  const envConfig = ENV_CONFIG as EnvConfig;
+  const calendar = envConfig.calendarId ? CalendarApp.getCalendarById(envConfig.calendarId) : CalendarApp.getDefaultCalendar();
   const title = `【課題】${courseName} - ${taskName}`;
   const description = url ? `課題URL: ${url}` : "";
 
@@ -72,10 +75,10 @@ function addCalendar(
   }
 }
 
-function shouldIgnore(taskInfo: TaskInfo, config: IgnoreConfig): boolean {
-  if (!config || !config.ignore) return false;
+function shouldIgnore(taskInfo: TaskInfo, ignore: EnvConfig["ignore"]): boolean {
+  if (!ignore) return false;
 
-  const { course, task } = config.ignore;
+  const { course, task } = ignore;
 
   if (taskInfo.courseName && course) {
     if (course.some((keyword) => taskInfo.courseName!.includes(keyword))) {
@@ -137,10 +140,10 @@ function main(): void {
       const startDateTime = getStartDateTime(taskInfo, receivedDate);
       const endDateTime = getEndDateTime(taskInfo, startDateTime);
 
-      // @ts-expect-error: IGNORE_RULE is injected by build
-      const ignoreConfig = IGNORE_RULE as IgnoreConfig;
+      // @ts-expect-error: ENV_CONFIG is injected by build
+      const envConfig = ENV_CONFIG as EnvConfig;
 
-      if (shouldIgnore(taskInfo, ignoreConfig)) {
+      if (shouldIgnore(taskInfo, envConfig.ignore)) {
         Logger.log(
           `Ignored task: ${taskInfo.courseName} - ${taskInfo.taskName}`
         );
