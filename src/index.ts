@@ -62,8 +62,6 @@ function addCalendar(
     return;
   }
 
-  // @ts-expect-error: ENV_CONFIG is injected by build
-  const envConfig = ENV_CONFIG as EnvConfig;
   const calendar = envConfig.calendarId ? CalendarApp.getCalendarById(envConfig.calendarId) : CalendarApp.getDefaultCalendar();
   const title = `【課題】${courseName} - ${taskName}`;
   const description = url ? `課題URL: ${url}` : "";
@@ -94,7 +92,7 @@ function shouldIgnore(taskInfo: TaskInfo, ignore: EnvConfig["ignore"]): boolean 
 
   return false;
 }
- 
+
 function main(): void {
   Logger.log("Starting script...");
 
@@ -105,12 +103,12 @@ function main(): void {
   ];
 
   const labelName = "新着課題";
-    
+
   const halfYearAgo = new Date();
 
   halfYearAgo.setMonth(halfYearAgo.getMonth() - 6);
   halfYearAgo.setHours(0, 0, 0, 0); // 半年前の午前0時
-  
+
   const searchQuery = `${query.join(" ")} -label:${labelName} after:${halfYearAgo.toISOString().slice(0, 10)}`;
 
   Logger.log(searchQuery);
@@ -122,26 +120,22 @@ function main(): void {
   Logger.log(`Label: ${newTasksLabel.getName()}`);
 
   let processedCount = 0;
-  
+
   for (const thread of threads) {
     const messages = thread.getMessages();
 
     for (const message of messages) {
-      const receivedDate = message.getDate();
+      const receivedDate = message.getDate() as Date;
 
-      // 受信日が半年前より新しいかチェック
-      if (receivedDate >= halfYearAgo) {
+      if (receivedDate <= halfYearAgo) {
         return;
       }
 
       const body = message.getPlainBody();
       const taskInfo = parseGmailBodyText(body);
-  
+
       const startDateTime = getStartDateTime(taskInfo, receivedDate);
       const endDateTime = getEndDateTime(taskInfo, startDateTime);
-
-      // @ts-expect-error: ENV_CONFIG is injected by build
-      const envConfig = ENV_CONFIG as EnvConfig;
 
       if (shouldIgnore(taskInfo, envConfig.ignore)) {
         Logger.log(
@@ -174,6 +168,9 @@ function main(): void {
 
   Logger.log(`${processedCount} 件の課題をカレンダーに追加しました。`);
 }
+
+// @ts-expect-error: ENV_CONFIG is injected by build
+const envConfig = ENV_CONFIG as EnvConfig;
 
 // Make main available globally for Google Apps Script
 globalThis.main = main;
